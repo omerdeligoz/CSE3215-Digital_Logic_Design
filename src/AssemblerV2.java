@@ -45,6 +45,7 @@ public class AssemblerV2 {
     public static void main(String[] args) {
         readInput();
         writeOutput();
+        System.out.println("\n\nOutput");
         System.out.println(output);
     }
 
@@ -57,6 +58,7 @@ public class AssemblerV2 {
             writer.close();
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.exit(1);
         }
     }
 
@@ -180,7 +182,7 @@ public class AssemblerV2 {
         System.out.println(binaryString); //print instruction in binary (just for logging)
         // Convert the binary instruction to hexadecimal and add it to the output
         String hexString = binaryToHex(binaryString);
-        output += hexString + "\n";
+        output += hexString + "\n";  //TODO - change to output += hexString + " ";
     }
 
     public static String binaryToHex(String binaryString) {
