@@ -25,8 +25,7 @@ public class AssemblerV2 {
         OPCODES.put("JB", "111");
         OPCODES.put("JAE", "111");
         OPCODES.put("JBE", "111");
-
-
+        
         REGISTERS.put("R0", "0000");
         REGISTERS.put("R1", "0001");
         REGISTERS.put("R2", "0010");
@@ -50,7 +49,6 @@ public class AssemblerV2 {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
-//                System.out.printf("%s\n", line);
                 line = line.replaceAll(",", "");
                 String[] tokens = line.split(" ");
                 String opcode = OPCODES.get(tokens[0]);
@@ -67,9 +65,7 @@ public class AssemblerV2 {
                         SR2 = tokens[3];
 
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
-                        System.out.printf("%s%s%s000%s\n", opcode, REGISTERS.get(DR), REGISTERS.get(SR1), REGISTERS.get(SR2));
+                        addHex(binaryString);
                         break;
                     case "ADDI":
                     case "ANDI":
@@ -86,8 +82,7 @@ public class AssemblerV2 {
                         binaryIMM = String.format("%06d", Integer.parseInt(binaryIMM));
 
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s%s%s1%s\n", opcode, REGISTERS.get(DR), REGISTERS.get(SR), binaryIMM);
                         break;
                     case "LD":
@@ -101,16 +96,14 @@ public class AssemblerV2 {
                         binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
 
                         binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s%s%s\n", opcode, REGISTERS.get(REG), binaryADDR);
                         break;
                     case "CMP":
                         OP1 = tokens[1];
                         OP2 = tokens[2];
                         binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s%s%s0000000\n", opcode, REGISTERS.get(OP1), REGISTERS.get(OP2));
                         break;
                     case "JUMP":
@@ -173,6 +166,12 @@ public class AssemblerV2 {
 
         System.out.println(output);
 
+    }
+
+    private static void addHex(String binaryString) {
+        System.out.println(binaryString); //print instruction in binary (just for logging)
+        String hexString = binaryToHex(binaryString);
+        output += hexString + " ";
     }
 
     public static String binaryToHex(String binaryString) {
@@ -265,8 +264,7 @@ public class AssemblerV2 {
                         SR2 = tokens[3];
 
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s %s %s 0 00 %s\n", opcode, REGISTERS.get(DR), REGISTERS.get(SR1), REGISTERS.get(SR2));
                         break;
                     case "ADDI":
@@ -284,8 +282,7 @@ public class AssemblerV2 {
                         binaryIMM = String.format("%06d", Integer.parseInt(binaryIMM));
 
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s %s %s 1 %s\n", opcode, REGISTERS.get(DR), REGISTERS.get(SR), binaryIMM);
                         break;
                     case "LD":
@@ -299,16 +296,14 @@ public class AssemblerV2 {
                         binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
 
                         binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s %s %s\n", opcode, REGISTERS.get(REG), binaryADDR);
                         break;
                     case "CMP":
                         OP1 = tokens[1];
                         OP2 = tokens[2];
                         binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
-                        hexString = binaryToHex(binaryString);
-                        output += hexString + " ";
+                        addHex(binaryString);
                         System.out.printf("%s %s %s 0000000\n", opcode, REGISTERS.get(OP1), REGISTERS.get(OP2));
                         break;
                     case "JUMP":
