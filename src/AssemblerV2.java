@@ -1,6 +1,4 @@
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +23,7 @@ public class AssemblerV2 {
         OPCODES.put("JB", "111");
         OPCODES.put("JAE", "111");
         OPCODES.put("JBE", "111");
-        
+
         REGISTERS.put("R0", "0000");
         REGISTERS.put("R1", "0001");
         REGISTERS.put("R2", "0010");
@@ -45,30 +43,55 @@ public class AssemblerV2 {
     }
 
     public static void main(String[] args) {
+        readInput();
+        writeOutput();
+        System.out.println(output);
+    }
+
+    private static void writeOutput() {
+        try {
+            File file = new File("output");
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter writer = new BufferedWriter(fw);
+            writer.write(output);
+            writer.close();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void readInput() {
         File file = new File("input.txt");
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
+            // Read each line from the input file
             while ((line = br.readLine()) != null) {
+                // Remove commas and split the line into tokens
                 line = line.replaceAll(",", "");
                 String[] tokens = line.split(" ");
+                // Get the opcode and instruction from the first token
                 String opcode = OPCODES.get(tokens[0]);
                 String instruction = tokens[0];
-                String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR;
-                String binaryString, hexString;
+                // Declare variables for the different parts of the instruction
+                String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR, binaryString;
+                // Process the instruction based on its type
                 switch (instruction) {
                     case "ADD":
                     case "AND":
                     case "NAND":
                     case "NOR":
+                        // For these instructions, get the destination register and two source registers
                         DR = tokens[1];
                         SR1 = tokens[2];
                         SR2 = tokens[3];
 
+                        // Convert the instruction to binary and add it to the output
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
                         addHex(binaryString);
                         break;
                     case "ADDI":
                     case "ANDI":
+                        // For these instructions, get the destination register, source register and immediate value
                         DR = tokens[1];
                         SR = tokens[2];
                         IMM = tokens[3];
@@ -83,10 +106,10 @@ public class AssemblerV2 {
 
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
                         addHex(binaryString);
-                        System.out.printf("%s%s%s1%s\n", opcode, REGISTERS.get(DR), REGISTERS.get(SR), binaryIMM);
                         break;
                     case "LD":
                     case "ST":
+                        // For these instructions, get the register and address
                         REG = tokens[1];
                         ADDR = tokens[2];
                         binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
@@ -97,14 +120,13 @@ public class AssemblerV2 {
 
                         binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
                         addHex(binaryString);
-                        System.out.printf("%s%s%s\n", opcode, REGISTERS.get(REG), binaryADDR);
                         break;
                     case "CMP":
+                        // For this instruction, get the two operands
                         OP1 = tokens[1];
                         OP2 = tokens[2];
                         binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
                         addHex(binaryString);
-                        System.out.printf("%s%s%s0000000\n", opcode, REGISTERS.get(OP1), REGISTERS.get(OP2));
                         break;
                     case "JUMP":
                     case "JE":
@@ -112,6 +134,7 @@ public class AssemblerV2 {
                     case "JB":
                     case "JAE":
                     case "JBE":
+                        // For these instructions, get the address
                         ADDR = tokens[1];
                         binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
                         if (Integer.parseInt(ADDR) > 2047) {
@@ -121,39 +144,27 @@ public class AssemblerV2 {
                         switch (instruction) {
                             case "JUMP":
                                 binaryString = opcode + "0000" + binaryADDR;
-                                hexString = binaryToHex(binaryString);
-                                output += hexString + " ";
-                                System.out.printf("%s0000%s\n", opcode, binaryADDR);
+                                addHex(binaryString);
                                 break;
                             case "JE":
                                 binaryString = opcode + "0001" + binaryADDR;
-                                hexString = binaryToHex(binaryString);
-                                output += hexString + " ";
-                                System.out.printf("%s0001%s\n", opcode, binaryADDR);
+                                addHex(binaryString);
                                 break;
                             case "JA":
                                 binaryString = opcode + "0010" + binaryADDR;
-                                hexString = binaryToHex(binaryString);
-                                output += hexString + " ";
-                                System.out.printf("%s0010%s\n", opcode, binaryADDR);
+                                addHex(binaryString);
                                 break;
                             case "JB":
                                 binaryString = opcode + "0011" + binaryADDR;
-                                hexString = binaryToHex(binaryString);
-                                output += hexString + " ";
-                                System.out.printf("%s0011%s\n", opcode, binaryADDR);
+                                addHex(binaryString);
                                 break;
                             case "JAE":
                                 binaryString = opcode + "0100" + binaryADDR;
-                                hexString = binaryToHex(binaryString);
-                                output += hexString + " ";
-                                System.out.printf("%s0100%s\n", opcode, binaryADDR);
+                                addHex(binaryString);
                                 break;
                             case "JBE":
                                 binaryString = opcode + "0101" + binaryADDR;
-                                hexString = binaryToHex(binaryString);
-                                output += hexString + " ";
-                                System.out.printf("%s0101%s\n", opcode, binaryADDR);
+                                addHex(binaryString);
                                 break;
                         }
                         break;
@@ -161,17 +172,15 @@ public class AssemblerV2 {
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            System.exit(1);
         }
-
-
-        System.out.println(output);
-
     }
 
     private static void addHex(String binaryString) {
         System.out.println(binaryString); //print instruction in binary (just for logging)
+        // Convert the binary instruction to hexadecimal and add it to the output
         String hexString = binaryToHex(binaryString);
-        output += hexString + " ";
+        output += hexString + "\n";
     }
 
     public static String binaryToHex(String binaryString) {
