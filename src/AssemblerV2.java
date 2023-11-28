@@ -78,7 +78,7 @@ public class AssemblerV2 {
                 String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR, binaryString;
                 // Process the instruction based on its type
                 switch (instruction) {
-                    case "ADD", "AND", "NAND", "NOR":
+                    case "ADD", "AND", "NAND", "NOR" -> {
                         // For these instructions, get the destination register and two source registers
                         DR = tokens[1];
                         SR1 = tokens[2];
@@ -87,8 +87,8 @@ public class AssemblerV2 {
                         // Convert the instruction to binary and add it to the output
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
                         addHex(binaryString);
-                        break;
-                    case "ADDI", "ANDI":
+                    }
+                    case "ADDI", "ANDI" -> {
                         // For these instructions, get the destination register, source register and immediate value
                         DR = tokens[1];
                         SR = tokens[2];
@@ -104,8 +104,8 @@ public class AssemblerV2 {
 
                         binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
                         addHex(binaryString);
-                        break;
-                    case "LD", "ST":
+                    }
+                    case "LD", "ST" -> {
                         // For these instructions, get the register and address
                         REG = tokens[1];
                         ADDR = tokens[2];
@@ -117,15 +117,15 @@ public class AssemblerV2 {
 
                         binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
                         addHex(binaryString);
-                        break;
-                    case "CMP":
+                    }
+                    case "CMP" -> {
                         // For this instruction, get the two operands
                         OP1 = tokens[1];
                         OP2 = tokens[2];
                         binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
                         addHex(binaryString);
-                        break;
-                    case "JUMP", "JE", "JA", "JB", "JAE", "JBE":
+                    }
+                    case "JUMP", "JE", "JA", "JB", "JAE", "JBE" -> {
                         // For these instructions, get the address
                         ADDR = tokens[1];
                         binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
@@ -159,9 +159,8 @@ public class AssemblerV2 {
                                 addHex(binaryString);
                             }
                         }
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Invalid instruction: " + instruction);
+                    }
+                    default -> throw new IllegalArgumentException("Invalid instruction: " + instruction);
                 }
             }
         } catch (Exception e) {
