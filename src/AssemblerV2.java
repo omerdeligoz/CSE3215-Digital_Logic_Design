@@ -3,8 +3,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AssemblerV2 {
-    final static Map<String, String> OPCODES = new HashMap<>();
-    final static Map<String, String> REGISTERS = new HashMap<>();
+    static final Map<String, String> OPCODES = new HashMap<>();
+    static final Map<String, String> REGISTERS = new HashMap<>();
     static String output = "v2.0 raw\n";
 
     static {
@@ -49,7 +49,7 @@ public class AssemblerV2 {
         System.out.println(output);
     }
 
-    private static void writeOutput() {
+    public static void writeOutput() {
         try {
             File file = new File("output");
             FileWriter fw = new FileWriter(file);
@@ -62,7 +62,7 @@ public class AssemblerV2 {
         }
     }
 
-    private static void readInput() {
+    public static void readInput() {
         File file = new File("input.txt");
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
@@ -71,97 +71,7 @@ public class AssemblerV2 {
                 // Remove commas and split the line into tokens
                 line = line.replace(",", "");
                 String[] tokens = line.split(" ");
-                // Get the opcode and instruction from the first token
-                String opcode = OPCODES.get(tokens[0]);
-                String instruction = tokens[0];
-                // Declare variables for the different parts of the instruction
-                String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR, binaryString;
-                // Process the instruction based on its type
-                switch (instruction) {
-                    case "ADD", "AND", "NAND", "NOR" -> {
-                        // For these instructions, get the destination register and two source registers
-                        DR = tokens[1];
-                        SR1 = tokens[2];
-                        SR2 = tokens[3];
-
-                        // Convert the instruction to binary and add it to the output
-                        binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
-                        addHex(binaryString);
-                    }
-                    case "ADDI", "ANDI" -> {
-                        // For these instructions, get the destination register, source register and immediate value
-                        DR = tokens[1];
-                        SR = tokens[2];
-                        IMM = tokens[3];
-                        String binaryIMM = Integer.toBinaryString(Integer.parseInt(IMM));
-                        if (Integer.parseInt(IMM) < -32 || Integer.parseInt(IMM) > 31) {
-                            throw new IllegalArgumentException("Immediate value out of range!");
-                        }
-                        if (Integer.parseInt(IMM) < 0) {
-                            binaryIMM = binaryIMM.substring(binaryIMM.length() - 6);
-                        }
-                        binaryIMM = String.format("%06d", Integer.parseInt(binaryIMM));
-
-                        binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
-                        addHex(binaryString);
-                    }
-                    case "LD", "ST" -> {
-                        // For these instructions, get the register and address
-                        REG = tokens[1];
-                        ADDR = tokens[2];
-                        binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
-                        if (Integer.parseInt(ADDR) > 2047) {
-                            throw new IllegalArgumentException("Address out of range!");
-                        }
-                        binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
-
-                        binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
-                        addHex(binaryString);
-                    }
-                    case "CMP" -> {
-                        // For this instruction, get the two operands
-                        OP1 = tokens[1];
-                        OP2 = tokens[2];
-                        binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
-                        addHex(binaryString);
-                    }
-                    case "JUMP", "JE", "JA", "JB", "JAE", "JBE" -> {
-                        // For these instructions, get the address
-                        ADDR = tokens[1];
-                        binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
-                        if (Integer.parseInt(ADDR) > 2047) {
-                            throw new IllegalArgumentException("Address out of range!");
-                        }
-                        binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
-                        switch (instruction) {
-                            case "JUMP" -> {
-                                binaryString = opcode + "0000" + binaryADDR;
-                                addHex(binaryString);
-                            }
-                            case "JE" -> {
-                                binaryString = opcode + "0001" + binaryADDR;
-                                addHex(binaryString);
-                            }
-                            case "JA" -> {
-                                binaryString = opcode + "0010" + binaryADDR;
-                                addHex(binaryString);
-                            }
-                            case "JB" -> {
-                                binaryString = opcode + "0011" + binaryADDR;
-                                addHex(binaryString);
-                            }
-                            case "JAE" -> {
-                                binaryString = opcode + "0100" + binaryADDR;
-                                addHex(binaryString);
-                            }
-                            case "JBE" -> {
-                                binaryString = opcode + "0101" + binaryADDR;
-                                addHex(binaryString);
-                            }
-                        }
-                    }
-                    default -> throw new IllegalArgumentException("Invalid instruction: " + instruction);
-                }
+                convertInstruction(tokens);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -169,8 +79,102 @@ public class AssemblerV2 {
         }
     }
 
-    private static void addHex(String binaryString) {
-        System.out.println(binaryString); //print instruction in binary (just for logging)
+    public static void convertInstruction(String[] tokens) {
+        // Get the opcode and instruction from the first token
+        String opcode = OPCODES.get(tokens[0]);
+        String instruction = tokens[0];
+        // Declare variables for the different parts of the instruction
+        String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR, binaryString;
+        // Process the instruction based on its type
+        switch (instruction) {
+            case "ADD", "AND", "NAND", "NOR" -> {
+                // For these instructions, get the destination register and two source registers
+                DR = tokens[1];
+                SR1 = tokens[2];
+                SR2 = tokens[3];
+
+                // Convert the instruction to binary and add it to the output
+                binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
+                convertAndAddToOutput(binaryString);
+            }
+            case "ADDI", "ANDI" -> {
+                // For these instructions, get the destination register, source register and immediate value
+                DR = tokens[1];
+                SR = tokens[2];
+                IMM = tokens[3];
+                String binaryIMM = Integer.toBinaryString(Integer.parseInt(IMM));
+                if (Integer.parseInt(IMM) < -32 || Integer.parseInt(IMM) > 31) {
+                    throw new IllegalArgumentException("Immediate value out of range!");
+                }
+                if (Integer.parseInt(IMM) < 0) {
+                    binaryIMM = binaryIMM.substring(binaryIMM.length() - 6);
+                }
+                binaryIMM = String.format("%06d", Integer.parseInt(binaryIMM));
+
+                binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
+                convertAndAddToOutput(binaryString);
+            }
+            case "LD", "ST" -> {
+                // For these instructions, get the register and address
+                REG = tokens[1];
+                ADDR = tokens[2];
+                binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
+                if (Integer.parseInt(ADDR) > 2047) {
+                    throw new IllegalArgumentException("Address out of range!");
+                }
+                binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
+
+                binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
+                convertAndAddToOutput(binaryString);
+            }
+            case "CMP" -> {
+                // For this instruction, get the two operands
+                OP1 = tokens[1];
+                OP2 = tokens[2];
+                binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
+                convertAndAddToOutput(binaryString);
+            }
+            case "JUMP", "JE", "JA", "JB", "JAE", "JBE" -> {
+                // For these instructions, get the address
+                ADDR = tokens[1];
+                binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
+                if (Integer.parseInt(ADDR) > 2047) {
+                    throw new IllegalArgumentException("Address out of range!");
+                }
+                binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
+                switch (instruction) {
+                    case "JUMP" -> {
+                        binaryString = opcode + "0000" + binaryADDR;
+                        convertAndAddToOutput(binaryString);
+                    }
+                    case "JE" -> {
+                        binaryString = opcode + "0001" + binaryADDR;
+                        convertAndAddToOutput(binaryString);
+                    }
+                    case "JA" -> {
+                        binaryString = opcode + "0010" + binaryADDR;
+                        convertAndAddToOutput(binaryString);
+                    }
+                    case "JB" -> {
+                        binaryString = opcode + "0011" + binaryADDR;
+                        convertAndAddToOutput(binaryString);
+                    }
+                    case "JAE" -> {
+                        binaryString = opcode + "0100" + binaryADDR;
+                        convertAndAddToOutput(binaryString);
+                    }
+                    case "JBE" -> {
+                        binaryString = opcode + "0101" + binaryADDR;
+                        convertAndAddToOutput(binaryString);
+                    }
+                }
+            }
+            default -> throw new IllegalArgumentException("Invalid instruction: " + instruction);
+        }
+    }
+
+    public static void convertAndAddToOutput(String binaryString) {
+        System.out.println(binaryString); //print instruction in binary (just for logging) TODO - remove
         // Convert the binary instruction to hexadecimal and add it to the output
         String hexString = binaryToHex(binaryString);
         output += hexString + "\n";  //TODO - change to output += hexString + " ";
