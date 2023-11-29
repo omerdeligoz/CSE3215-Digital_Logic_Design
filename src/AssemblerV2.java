@@ -84,7 +84,7 @@ public class AssemblerV2 {
         String opcode = OPCODES.get(tokens[0]);
         String instruction = tokens[0];
         // Declare variables for the different parts of the instruction
-        String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR, binaryString;
+        String REG, DR, SR, SR1, SR2, OP1, OP2, IMM, ADDR, binaryADDR, binaryInstruction;
         // Process the instruction based on its type
         switch (instruction) {
             case "ADD", "AND", "NAND", "NOR" -> {
@@ -94,8 +94,8 @@ public class AssemblerV2 {
                 SR2 = tokens[3];
 
                 // Convert the instruction to binary and add it to the output
-                binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
-                convertAndAddToOutput(binaryString);
+                binaryInstruction = opcode + REGISTERS.get(DR) + REGISTERS.get(SR1) + "000" + REGISTERS.get(SR2);
+                convertAndAddToOutput(binaryInstruction);
             }
             case "ADDI", "ANDI" -> {
                 // For these instructions, get the destination register, source register and immediate value
@@ -108,11 +108,11 @@ public class AssemblerV2 {
                 }
                 if (Integer.parseInt(IMM) < 0) {
                     binaryIMM = binaryIMM.substring(binaryIMM.length() - 6);
+                } else {
+                    binaryIMM = String.format("%06d", Integer.parseInt(binaryIMM));
                 }
-                binaryIMM = String.format("%06d", Integer.parseInt(binaryIMM));
-
-                binaryString = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
-                convertAndAddToOutput(binaryString);
+                binaryInstruction = opcode + REGISTERS.get(DR) + REGISTERS.get(SR) + "1" + binaryIMM;
+                convertAndAddToOutput(binaryInstruction);
             }
             case "LD", "ST" -> {
                 // For these instructions, get the register and address
@@ -123,16 +123,15 @@ public class AssemblerV2 {
                     throw new IllegalArgumentException("Address out of range!");
                 }
                 binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
-
-                binaryString = opcode + REGISTERS.get(REG) + binaryADDR;
-                convertAndAddToOutput(binaryString);
+                binaryInstruction = opcode + REGISTERS.get(REG) + binaryADDR;
+                convertAndAddToOutput(binaryInstruction);
             }
             case "CMP" -> {
                 // For this instruction, get the two operands
                 OP1 = tokens[1];
                 OP2 = tokens[2];
-                binaryString = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
-                convertAndAddToOutput(binaryString);
+                binaryInstruction = opcode + REGISTERS.get(OP1) + REGISTERS.get(OP2) + "0000000";
+                convertAndAddToOutput(binaryInstruction);
             }
             case "JUMP", "JE", "JA", "JB", "JAE", "JBE" -> {
                 // For these instructions, get the address
@@ -144,28 +143,28 @@ public class AssemblerV2 {
                 binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
                 switch (instruction) {
                     case "JUMP" -> {
-                        binaryString = opcode + "0000" + binaryADDR;
-                        convertAndAddToOutput(binaryString);
+                        binaryInstruction = opcode + "0000" + binaryADDR;
+                        convertAndAddToOutput(binaryInstruction);
                     }
                     case "JE" -> {
-                        binaryString = opcode + "0001" + binaryADDR;
-                        convertAndAddToOutput(binaryString);
+                        binaryInstruction = opcode + "0001" + binaryADDR;
+                        convertAndAddToOutput(binaryInstruction);
                     }
                     case "JA" -> {
-                        binaryString = opcode + "0010" + binaryADDR;
-                        convertAndAddToOutput(binaryString);
+                        binaryInstruction = opcode + "0010" + binaryADDR;
+                        convertAndAddToOutput(binaryInstruction);
                     }
                     case "JB" -> {
-                        binaryString = opcode + "0011" + binaryADDR;
-                        convertAndAddToOutput(binaryString);
+                        binaryInstruction = opcode + "0011" + binaryADDR;
+                        convertAndAddToOutput(binaryInstruction);
                     }
                     case "JAE" -> {
-                        binaryString = opcode + "0100" + binaryADDR;
-                        convertAndAddToOutput(binaryString);
+                        binaryInstruction = opcode + "0100" + binaryADDR;
+                        convertAndAddToOutput(binaryInstruction);
                     }
                     case "JBE" -> {
-                        binaryString = opcode + "0101" + binaryADDR;
-                        convertAndAddToOutput(binaryString);
+                        binaryInstruction = opcode + "0101" + binaryADDR;
+                        convertAndAddToOutput(binaryInstruction);
                     }
                 }
             }
@@ -173,24 +172,24 @@ public class AssemblerV2 {
         }
     }
 
-    public static void convertAndAddToOutput(String binaryString) {
-        System.out.println(binaryString); //print instruction in binary (just for logging) TODO - remove
+    public static void convertAndAddToOutput(String binaryInstruction) {
+        System.out.println(binaryInstruction); //print instruction in binary (just for logging) TODO - remove
         // Convert the binary instruction to hexadecimal and add it to the output
-        String hexString = binaryToHex(binaryString);
-        output += hexString + "\n";  //TODO - change to output += hexString + " ";
+        String hexInstruction = binaryToHex(binaryInstruction);
+        output += hexInstruction + "\n";  //TODO - change to output += hexString + " ";
     }
 
-    public static String binaryToHex(String binaryString) {
+    public static String binaryToHex(String binaryInstruction) {
         // Check if the binary input.txt length is exactly 18 bits
-        if (binaryString.length() != 18) {
+        if (binaryInstruction.length() != 18) {
             throw new IllegalArgumentException("Input must be an 18-bit binary string");
         }
 
-        int decimalValue = Integer.parseInt(binaryString, 2);
-        StringBuilder hexOutput = new StringBuilder(Integer.toHexString(decimalValue));
-        while (hexOutput.length() < 5) {
-            hexOutput.insert(0, "0");
+        int decimalValue = Integer.parseInt(binaryInstruction, 2);
+        StringBuilder resultHex = new StringBuilder(Integer.toHexString(decimalValue));
+        while (resultHex.length() < 5) {
+            resultHex.insert(0, "0");
         }
-        return hexOutput.toString();
+        return resultHex.toString();
     }
 }
