@@ -44,7 +44,7 @@ public class Assembler {
     }
 
     public static void main(String[] args) {
-        File file = new File("input.txt");
+        File file = new File("input");
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
