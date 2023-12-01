@@ -45,8 +45,6 @@ public class AssemblerV2 {
     public static void main(String[] args) {
         readInput();
         writeOutput();
-        System.out.println("\n\nOutput");
-        System.out.println(output);
     }
 
     public static void writeOutput() {
@@ -63,7 +61,7 @@ public class AssemblerV2 {
     }
 
     public static void readInput() {
-        File file = new File("input.txt");
+        File file = new File("input");
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
             // Read each line from the input file
@@ -173,14 +171,13 @@ public class AssemblerV2 {
     }
 
     public static void convertAndAddToOutput(String binaryInstruction) {
-        System.out.println(binaryInstruction); //print instruction in binary (just for logging) TODO - remove
         // Convert the binary instruction to hexadecimal and add it to the output
         String hexInstruction = binaryToHex(binaryInstruction);
-        output += hexInstruction + "\n";  //TODO - change to output += hexString + " ";
+        output += hexInstruction + " ";
     }
 
     public static String binaryToHex(String binaryInstruction) {
-        // Check if the binary input.txt length is exactly 18 bits
+        // Check if the binary input length is exactly 18 bits
         if (binaryInstruction.length() != 18) {
             throw new IllegalArgumentException("Input must be an 18-bit binary string");
         }
