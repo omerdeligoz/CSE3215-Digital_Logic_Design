@@ -135,10 +135,14 @@ public class Assembler {
                 // For these instructions, get the address
                 ADDR = tokens[1];
                 binaryADDR = Integer.toBinaryString(Integer.parseInt(ADDR));
+                if (Integer.parseInt(ADDR) < 0) {
+                    binaryADDR = binaryADDR.substring(binaryADDR.length() - 11);
+                } else {
+                    binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
+                }
                 if (Integer.parseInt(ADDR) > 2047) {
                     throw new IllegalArgumentException("Address out of range!");
                 }
-                binaryADDR = String.format("%011d", Integer.parseInt(binaryADDR));
                 switch (instruction) {
                     case "JUMP" -> {
                         binaryInstruction = opcode + "0000" + binaryADDR;
