@@ -66,6 +66,9 @@ public class Assembler {
             String line;
             // Read each line from the input file
             while ((line = br.readLine()) != null) {
+                if (line.isEmpty()) {
+                    continue;
+                }
                 // Remove commas and split the line into tokens
                 line = line.replace(",", "");
                 String[] tokens = line.split(" ");
